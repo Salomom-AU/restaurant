@@ -5,6 +5,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== "accepter") {
     header('Location: /restaurant/frontend/forms/404.php');
     exit();
 } else {
+    $visible = "";
     $pseudo = $_SESSION['user_username'];
     $path = "dashboard";
     if (isset($_GET['dashbord'])) {
@@ -12,6 +13,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== "accepter") {
     }
     if (isset($_GET['commande'])) {
         $path = "commande";
+        $visible = "hidden";
     }
     if (isset($_GET['reserver'])) {
         $path = "reserver";
@@ -53,11 +55,6 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== "accepter") {
 
 <header class="gap-4 sticky top-0 z-1000 h-[10vh] px-10 flex items-center w-full justify-between">
     <div class="flex w-full items-center gap-5">
-        <label class="swap swap-rotate">
-            <input type="checkbox" class="theme-controller text-2xl" value="light" />
-            <i class="swap-on fas fa-moon"></i>
-            <i class="swap-off fas fa-sun"></i>
-        </label>
         <div class="text-2xl font-bold">
             <span class="text-info">R</span>esto <span class="text-info">FOOD</span>
         </div>
@@ -109,7 +106,9 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== "accepter") {
                         </div>
                     </a>
                 </li>
-                <li>
+                <li class="relative ">
+
+
                     <a href="?commande=1" class="tooltip tooltip-right" data-tip="commande">
                         <div class="flex items-center justify-center w-full h-12 rounded-xl hover:bg-primary/10 transition-all duration-300 cursor-pointer">
                             <i class="fas fa-shopping-cart text-xl"></i>

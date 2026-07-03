@@ -14,11 +14,7 @@
 </head>
 <header class="gap-4 px-10 py-4 flex items-center w-full justify-between">
     <div class="flex items-center gap-5">
-        <label class="swap swap-rotate">
-            <input type="checkbox" class="theme-controller text-2xl" value="light" />
-            <i class="swap-on fas fa-moon "></i>
-            <i class="swap-off fas fa-sun "></i>
-        </label>
+
         <div class="text-2xl font-bold">
             <span class="text-info">R</span>esto <span class="text-info">FOOD</span>
         </div>

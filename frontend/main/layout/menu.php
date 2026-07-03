@@ -1,7 +1,6 @@
 <?php
 
 include __DIR__ . '/../../../backend/db.php';
-
 $status = '';
 $statusColor = '';
 if (isset($_GET['message'])) {
@@ -19,8 +18,23 @@ if (isset($_GET['message'])) {
 ?>
 <div class="w-full p-5 flex flex-col gap-5">
     <div class="flex justify-between items-center">
-        <h1 class="text-5xl font-bold">Gestion des menus</h1>
+        <?php
+        $query = "SELECT COUNT(*) AS total_plats  FROM menu ";
+        $result = mysqli_query($connect, $query);
+        if ($result && mysqli_num_rows($result) > 0) {
+            $row = mysqli_fetch_assoc($result);
+            $totalPlats = $row['total_plats'];
+        }
+        ?>
+        <div class=" flex items-center justify-center w-50 h-30 rounded-box bg-base-200">
+            <p class="text-info text-3xl">
+                <?php
+                echo $totalPlats . " Plats";
 
+
+                ?>
+            </p>
+        </div>
         <div class="flex items-center gap-2">
             <p>Rechercher :</p>
             <input type="text" id="searchInput" placeholder="Rechercher..."
@@ -28,10 +42,10 @@ if (isset($_GET['message'])) {
         </div>
         <a href="../../../../restaurant/backend/menu.php?subject=create"
             class="btn btn-info w-xs">
-            <i class="fas fa-plus"></i> Ajouter
+            <i class="fas fa-plus"></i> Nouveau menu
         </a>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid w-full h-110 overflow-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <?php
         $query = "SELECT * FROM menu ORDER BY idplat ASC";
         $result = mysqli_query($connect, $query);
@@ -46,22 +60,21 @@ if (isset($_GET['message'])) {
                     <figure class="h-30 bg-base-200 flex items-center justify-center">
                         <i class="fas fa-utensils text-6xl text-base-content/30"></i>
                     </figure>
-
                     <div class="card-body">
                         <div class="flex justify-between items-center">
-                            <span class="badge badge-info">#<?= $id ?></span>
                             <p class=" text-3xl font-bold text-info">
-                                <?= $prix ?> Ar
+                                <i class="fa-solid fa-coins"></i> <?= $prix ?> Ar
                             </p>
+                            <span class="badge badge-info"><i class="fa-solid fa-tag"></i> #<?= $id ?></span>
                         </div>
 
                         <h2 class="card-title text-2xl font-bold">
-                            <?= $nom ?>
+                            <i class="fa-solid fa-bowl-rice"></i> <?= $nom ?>
                         </h2>
 
                         <div class="card-actions flex items-center gap-2">
-                            <a class="btn btn-info btn-sm w-75" href="../../../../restaurant/backend/commande.php?commande=1&&idplat=<?= $row['idplat'] ?>">
-                                <i class="fas fa-utensils"></i>
+                            <a class="btn btn-info btn-sm w-75" href="../../../../restaurant/backend/commande.php?idplat=<?= $row['idplat'] ?>">
+                                <i class="fas fa-shopping-cart "></i>
                                 Commander
                             </a>
 
