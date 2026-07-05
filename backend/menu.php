@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
         $stmt = $connect->prepare($sql);
         $stmt->bind_param("s", $id);
         if ($stmt->execute()) {
-            header("Location: ../../../../restaurant/frontend/main/main.php?menu=1&message=succes");
+            header("Location: ../../../../restaurant/frontend/main/main.php?menu=1&message=delete");
         } else {
             header("Location: ../../../../restaurant/frontend/main/main.php?menu=1&message=error");
         }
@@ -31,7 +31,6 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
         $stmt->execute();
         $result = $stmt->get_result();
         $platData = $result->fetch_assoc();
-
         $plat  = $platData['nomplat'] ?? '';
         $prix  = $platData['pu'] ?? '';
         $number = $id;
@@ -60,7 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         $sql = "INSERT INTO menu (idplat, nomplat, pu) VALUES (?, ?, ?)";
         $stmt = $connect->prepare($sql);
         $stmt->bind_param("ssd", $id, $plat, $prix);
-
         if ($stmt->execute()) {
             header("Location: ../../../../restaurant/frontend/main/main.php?menu=1&message=added");
             exit;
@@ -82,7 +80,7 @@ if (($subject ?? '') == "create" || (!isset($_GET['subject']) && empty($_GET['id
         <div class="w-full h-full flex items-center justify-center">
             <a href="../../../../restaurant/frontend/main/main.php?menu=1"
                 class="hide absolute top-10 right-10 btn btn-circle btn-ghost text-white text-3xl">
-                <i class="fas fa-close text-error"></i>
+                <i class="fas fa-close "></i>
             </a>
 
             <div class="cardForm bg-base-100 max-w-lg w-full rounded-box shadow-2xl p-8">
@@ -116,7 +114,7 @@ if (($subject ?? '') == "create" || (!isset($_GET['subject']) && empty($_GET['id
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-info w-full">Enregistrer </button>
+                    <button type="submit" class="btn btn-info w-full">Ajouter le menu </button>
                 </form>
             </div>
         </div>
@@ -128,7 +126,7 @@ if (($subject ?? '') == "create" || (!isset($_GET['subject']) && empty($_GET['id
         <div class="w-full h-full flex items-center justify-center">
             <a href="../../../../restaurant/frontend/main/main.php?menu=1"
                 class="hide absolute top-10 right-10 btn btn-circle btn-ghost text-white text-3xl">
-                <i class="fas fa-close text-error"></i>
+                <i class="fas fa-close "></i>
             </a>
 
             <div class="cardForm bg-base-100 max-w-lg w-full rounded-box shadow-2xl p-8">
@@ -143,19 +141,19 @@ if (($subject ?? '') == "create" || (!isset($_GET['subject']) && empty($_GET['id
                     <input type="hidden" name="id" value="<?= htmlspecialchars($id) ?>">
 
                     <div>
-                        <label class="label">Nom du plat</label>
+                      <label class="label"><i class="fa-solid fa-burger"></i> Nom du plat</label>
                         <input type="text" name="plat" value="<?= htmlspecialchars($plat) ?>" required
                             class="input input-bordered w-full">
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="label">Prix (Ar)</label>
+                              <label class="label"><i class="fa-solid fa-coins"></i> Prix (Ar)</label>
                             <input type="number" step="0.01" name="prix" value="<?= htmlspecialchars($prix) ?>" required
                                 class="input input-bordered w-full">
                         </div>
                         <div>
-                            <label class="label">Numéro</label>
+                           <label class="label"><i class="fa-solid fa-tag"></i> Numéro</label>
                             <input type="text" value="<?= htmlspecialchars($number ?? $id) ?>" readonly
                                 class="input input-bordered w-full">
                         </div>

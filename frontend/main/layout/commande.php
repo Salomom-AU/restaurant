@@ -5,37 +5,18 @@ if (!isset($_SESSION)) {
 }
 ?>
 
-<div class="p-6 max-w-screen-2xl mx-auto">
+<div class="p-5 max-w-screen-2xl mx-auto">
 
-    <!-- Header -->
+
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
-        <div class="flex items-center gap-3">
-            <i class="fas fa-shopping-cart text-4xl text-info"></i>
-            <div>
-                <h1 class="text-4xl font-bold">Commandes</h1>
-                <p class="text-base-content/60">Gérez toutes les commandes du restaurant</p>
-            </div>
-        </div>
-
-        <!-- Stat du jour -->
-        <div class="stats shadow bg-base-100 border-l-4 border-info w-full lg:w-auto">
-            <div class="stat">
-                <div class="stat-title">Commandes aujourd'hui</div>
-                <div class="stat-value text-info"><?= array_sum($_SESSION['commande'] ?? [0]) ?></div>
-                <div class="stat-desc flex items-center gap-2">
-                    <i class="fas fa-shopping-bag"></i>
-                </div>
-            </div>
-        </div>
-
-        <a href="../../../../restaurant/frontend/main/main.php?menu=1" 
+          <h1 class="text-4xl font-bold">Gestion des Commandes</h1>
+        <a href="../../../../restaurant/backend/commande.php" 
            class="btn btn-info gap-2 whitespace-nowrap">
             <i class="fas fa-plus"></i>
             Nouvelle commande
         </a>
     </div>
 
-    <!-- Filtres -->
     <div class="flex flex-col lg:flex-row gap-4 mb-8">
         <div class="relative flex-1">
             <input type="text" id="searchInput"
@@ -94,9 +75,7 @@ if (!isset($_SESSION)) {
                     <td>12:30</td>
                     <td class="text-center">
                         <div class="flex justify-center gap-1">
-                            <button class="btn btn-ghost btn-sm"><i class="fas fa-eye"></i></button>
-                            <button class="btn btn-ghost btn-sm text-success"><i class="fas fa-check"></i></button>
-                            <button class="btn btn-ghost btn-sm text-error"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-ghost  text-error"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>
@@ -114,11 +93,9 @@ if (!isset($_SESSION)) {
                     <td class="text-right font-semibold text-info">18 500 Ar</td>
                     <td><span class="badge badge-warning">À emporter</span></td>
                     <td>13:15</td>
-                    <td class="text-center">
+                     <td class="text-center">
                         <div class="flex justify-center gap-1">
-                            <button class="btn btn-ghost btn-sm"><i class="fas fa-eye"></i></button>
-                            <button class="btn btn-ghost btn-sm text-success"><i class="fas fa-check"></i></button>
-                            <button class="btn btn-ghost btn-sm text-error"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-ghost  text-error"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>

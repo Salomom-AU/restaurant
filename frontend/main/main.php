@@ -168,6 +168,13 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== "accepter") {
         </footer>
     </main>
 </div>
+<?php if (!empty($status)): ?>
+    <div id="statusMessage" class=" rounded-box fixed right-5 bottom-5 <?= $statusColor ?> text-white p-5 flex items-center shadow-xl">
+        <p><?= htmlspecialchars($status) ?></p>
+    </div>
+<?php endif; ?>
+
+<script src="../script.js"></script>
 
 </body>
 

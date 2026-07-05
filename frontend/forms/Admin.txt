@@ -1,66 +1,17 @@
-<div class="p-8 max-w-2xl mx-auto">
-    <div class="card bg-base-100 shadow-2xl">
-        <div class="card-body">
-            <h2 class="card-title text-3xl mb-6">Nouvelle Commande</h2>
+   <?php
+        $query = "SELECT COUNT(*) AS total_plats  FROM menu ";
+        $result = mysqli_query($connect, $query);
+        if ($result && mysqli_num_rows($result) > 0) {
+            $row = mysqli_fetch_assoc($result);
+            $totalPlats = $row['total_plats'];
+        }
+        ?>
+        <div class=" flex items-center justify-center w-50 p-4 rounded-box bg-base-200">
+            <p class="text-info text-3xl">
+                <?php
+                echo $totalPlats . " Plats";
 
-            <div class="space-y-6">
-                <!-- Client -->
-                <div>
-                    <label class="label">Nom du Client</label>
-                    <input type="text" class="input input-bordered w-full" placeholder="Ex: Jean Rakoto" />
-                </div>
 
-                <!-- Type de commande -->
-                <div>
-                    <label class="label">Type de Commande</label>
-                    <div class="flex gap-4">
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="type" class="radio radio-info" checked />
-                            <span>Sur Table</span>
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="type" class="radio radio-info" />
-                            <span>À Emporter</span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Table (visible seulement si "Sur Table") -->
-                <div id="tableSection">
-                    <label class="label">Numéro de Table</label>
-                    <select class="select select-bordered w-full">
-                        <option value="">Sélectionner une table</option>
-                        <option>Table 01</option>
-                        <option>Table 02</option>
-                        <option>Table 03</option>
-                    </select>
-                </div>
-
-                <!-- Liste des plats (exemple) -->
-                <div>
-                    <label class="label">Plats</label>
-                    <div class="border border-base-300 rounded-box p-4 space-y-4">
-                        <div class="flex gap-4 items-center">
-                            <select class="select select-bordered flex-1">
-                                <option>Pizza Margherita</option>
-                            </select>
-                            <input type="number" value="1" class="input input-bordered w-20 text-center" />
-                            <button class="btn btn-ghost text-error">×</button>
-                        </div>
-                    </div>
-                    <button class="btn btn-outline btn-sm mt-3">
-                        <i class="fas fa-plus"></i> Ajouter un plat
-                    </button>
-                </div>
-
-                <div class="flex justify-end gap-4 pt-6 border-t">
-                    <button class="btn btn-ghost">Annuler</button>
-                    <button class="btn btn-success gap-2">
-                        <i class="fas fa-check"></i>
-                        Valider la Commande
-                    </button>
-                </div>
-            </div>
+                ?>
+            </p>
         </div>
-    </div>
-</div>
