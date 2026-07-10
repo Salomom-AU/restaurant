@@ -20,7 +20,6 @@ $profile = substr($nom , 0 , 2 ) ;
                         </div>
                     </div>
                 </div>
-
                 <div class="flex-1 text-center md:text-left">
                     <h1 class="text-4xl font-bold text-info"><?php echo $nom ?></h1>
                     <p class="text-lg text-base-content/70"><?php echo '@' . $pseudo ?></p>
@@ -39,9 +38,10 @@ $profile = substr($nom , 0 , 2 ) ;
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
-
+    <div>
+        
+    </div>
 </div>

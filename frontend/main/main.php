@@ -48,13 +48,26 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== "accepter") {
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.0/chart.min.js" integrity="sha512-n/G+dROKbKL3GVngGWmWfwK0yPctjZQM752diVYnXZtD/48agpUKLIn0xDQL9ydZ91x6BiOmTIFwWjjFi2kEFg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 </head>
+<style>
+    @keyframes show {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+    }
+
+    .asideTile {
+        animation: show 0.3s ease-in-out forwards;
+        font-weight: bold;
+    }
+</style>
 
 <header class="gap-4 sticky top-0 z-1000 h-[10vh] px-10 flex items-center w-full justify-between">
     <div class="flex w-full items-center gap-5">
+        <button id="asideBtn" class="btn btn-info btn-sm"> <i class="fas fa-bars"></i></button>
         <div class="text-2xl font-bold">
             <span class="text-info">R</span>esto <span class="text-info">FOOD</span>
         </div>
@@ -89,30 +102,31 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== "accepter") {
 </header>
 
 <div class="w-full h-[90vh] flex">
-    <aside id="aside" class="w-full enter max-w-20 flex items-center justify-center p-5 h-full">
-        <div class="flex flex-col justify-center items-center relative transition-all duration-[450ms] ease-in-out w-16">
-            <ul class="menu bg-base-100 rounded-box shadow-lg shadow-black/15 w-16 p-2 gap-1">
+    <aside class=" enter flex items-center justify-center p-5 h-full">
+        <div class="flex flex-col justify-center items-center relative transition-all duration-[450ms] ease-in-out ">
+            <ul class="menu bg-base-100 rounded-box shadow-lg shadow-black/15 transition-all duration-300 ease-in-out  min-w-16 p-2 gap-1">
                 <li>
-                    <a href="?dashbord=1" class="tooltip tooltip-right" data-tip="Tableau de bord">
+                    <a href="?dashbord=1" class="tooltip text-nowrap tooltip-right" data-tip="Tableau de bord">
                         <div class="flex items-center justify-center w-full h-12 rounded-xl hover:bg-primary/10 transition-all duration-300 cursor-pointer">
                             <i class="fas fa-chart-pie text-xl"></i>
                         </div>
+                        <label class="asideTile hidden label" for="">Tableau de bord</label>
                     </a>
                 </li>
                 <li>
                     <a href="?table=1" class="tooltip tooltip-right" data-tip="table">
                         <div class="flex items-center justify-center w-full h-12 rounded-xl hover:bg-primary/10 transition-all duration-300 cursor-pointer">
-                            <i class="fa-solid fa-table-cells-large text-xl"></i>
+                            <i class="fas fa-table text-xl"></i>
                         </div>
+                        <label class="asideTile hidden label" for="">Tables</label>
                     </a>
                 </li>
                 <li class="relative ">
-
-
                     <a href="?commande=1" class="tooltip tooltip-right" data-tip="commande">
                         <div class="flex items-center justify-center w-full h-12 rounded-xl hover:bg-primary/10 transition-all duration-300 cursor-pointer">
                             <i class="fas fa-shopping-cart text-xl"></i>
                         </div>
+                        <label class="asideTile hidden label" for="">Commandes</label>
                     </a>
                 </li>
                 <li>
@@ -120,6 +134,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== "accepter") {
                         <div class="flex items-center justify-center w-full h-12 rounded-xl hover:bg-primary/10 transition-all duration-300 cursor-pointer">
                             <i class="fas fa-utensils text-xl"></i>
                         </div>
+                        <label class="asideTile hidden label" for="">Menus</label>
                     </a>
                 </li>
                 <li>
@@ -127,6 +142,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== "accepter") {
                         <div class="flex items-center justify-center w-full h-12 rounded-xl hover:bg-primary/10 transition-all duration-300 cursor-pointer">
                             <i class="fas fa-bookmark text-xl"></i>
                         </div>
+                        <label id="asideTile" class="asideTile hidden label" for="">Reservations</label>
                     </a>
                 </li>
 
@@ -138,6 +154,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== "accepter") {
                         <div class="flex items-center justify-center w-full h-12 rounded-xl hover:bg-primary/10 transition-all duration-300 cursor-pointer">
                             <i class="fas fa-gear text-xl"></i>
                         </div>
+                        <label class="asideTile hidden label" for="">Parametres</label>
                     </a>
 
                 </li>
@@ -145,7 +162,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== "accepter") {
         </div>
     </aside>
 
-    <main class="w-full h-full overflow-auto">
+    <main class="w-full h-full  ">
         <div class="w-full ">
             <?php
 
@@ -168,13 +185,57 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== "accepter") {
         </footer>
     </main>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <?php if (!empty($status)): ?>
-    <div id="statusMessage" class=" rounded-box fixed right-5 bottom-5 <?= $statusColor ?> text-white p-5 flex items-center shadow-xl">
+    <div id="statusMessage" class="rounded-2xl fixed right-130 top-5 <?= $statusColor ?> text-white p-3 flex items-center gap-3 shadow-2xl">
         <p><?= htmlspecialchars($status) ?></p>
     </div>
 <?php endif; ?>
 
-<script src="../script.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const asideBtn = document.getElementById('asideBtn');
+        const asideLabels = document.querySelectorAll('.asideTile');
+
+        if (asideBtn) {
+            asideBtn.addEventListener('click', function() {
+                asideLabels.forEach(label => {
+                    label.classList.toggle('hidden');
+                });
+            });
+        }
+        const rows = document.querySelectorAll('tbody tr');
+        if (rows.length > 0) {
+            gsap.from(rows, {
+                opacity: 0,
+                y: 40,
+                duration: 0.5,
+                ease: "back.out(1.2)",
+                stagger: 0.06,
+            });
+        }
+        const statusDiv = document.getElementById('statusMessage');
+        if (statusDiv) {
+            gsap.from(statusDiv, {
+                opacity: 0,
+                y: 40,
+                duration: 0.6,
+                ease: "back.out(1.2)"
+            });
+            setTimeout(() => {
+                gsap.to(statusDiv, {
+                    opacity: 0,
+                    y: 30,
+                    duration: 0.5,
+                    ease: "power2.in",
+                    onComplete: function() {
+                        statusDiv.remove();
+                    }
+                });
+            }, 4000);
+        }
+    });
+</script>
 
 </body>
 

@@ -9,7 +9,7 @@ if (!isset($_SESSION)) {
 
 
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
-          <h1 class="text-4xl font-bold">Gestion des Commandes</h1>
+         <h1 class="text-4xl lg:text-5xl font-bold tracking-tight">Gestion des Commandes</h1>
         <a href="../../../../restaurant/backend/commande.php" 
            class="btn btn-info gap-2 whitespace-nowrap">
             <i class="fas fa-plus"></i>

@@ -8,17 +8,31 @@ $title = "";
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
     $subject = $_GET['subject'] ?? '';
     $id      = $_GET['id'] ?? '';
+    if ($subject == "delete" && !empty($id)) {
+        $connect->begin_transaction();
+        try {
+            $sql = "DELETE FROM menu WHERE idplat = ?";
+            $stmt = $connect->prepare($sql);
+            $stmt->bind_param("s", $id);
+            $stmt->execute();
+            $numSupprime = (int) substr($id, 1);
+            $sqlUpdate = "UPDATE menu 
+                         SET idplat = CONCAT('P', LPAD(CAST(SUBSTRING(idplat, 2) AS UNSIGNED) - 1, 3, '0'))
+                         WHERE CAST(SUBSTRING(idplat, 2) AS UNSIGNED) > ?";
 
-    if ($subject == "delete") {
-        $sql = "DELETE FROM menu WHERE idplat = ?";
-        $stmt = $connect->prepare($sql);
-        $stmt->bind_param("s", $id);
-        if ($stmt->execute()) {
+            $stmtUpdate = $connect->prepare($sqlUpdate);
+            $stmtUpdate->bind_param("i", $numSupprime);
+            $stmtUpdate->execute();
+
+            $connect->commit();
+
             header("Location: ../../../../restaurant/frontend/main/main.php?menu=1&message=delete");
-        } else {
+            exit;
+        } catch (Exception $e) {
+            $connect->rollback();
             header("Location: ../../../../restaurant/frontend/main/main.php?menu=1&message=error");
+            exit;
         }
-        exit;
     } elseif ($subject == "create") {
         $title = "Ajouter un menu";
     } elseif ($subject == "update") {
@@ -74,7 +88,7 @@ if (($subject ?? '') == "create" || (!isset($_GET['subject']) && empty($_GET['id
     $result = mysqli_query($connect, $query);
     $row = mysqli_fetch_assoc($result);
     $totalPlats = $row['total_plats'] ?? 0;
-    $nextId = "P" . ($totalPlats + 1);
+    $nextId = "P" . sprintf("%03d", ($totalPlats + 1));
 ?>
     <div class="box w-full fixed top-0 left-0 z-[10000] backdrop-blur-3xl h-full">
         <div class="w-full h-full flex items-center justify-center">
@@ -141,19 +155,19 @@ if (($subject ?? '') == "create" || (!isset($_GET['subject']) && empty($_GET['id
                     <input type="hidden" name="id" value="<?= htmlspecialchars($id) ?>">
 
                     <div>
-                      <label class="label"><i class="fa-solid fa-burger"></i> Nom du plat</label>
+                        <label class="label"><i class="fa-solid fa-burger"></i> Nom du plat</label>
                         <input type="text" name="plat" value="<?= htmlspecialchars($plat) ?>" required
                             class="input input-bordered w-full">
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                              <label class="label"><i class="fa-solid fa-coins"></i> Prix (Ar)</label>
+                            <label class="label"><i class="fa-solid fa-coins"></i> Prix (Ar)</label>
                             <input type="number" step="0.01" name="prix" value="<?= htmlspecialchars($prix) ?>" required
                                 class="input input-bordered w-full">
                         </div>
                         <div>
-                           <label class="label"><i class="fa-solid fa-tag"></i> Numéro</label>
+                            <label class="label"><i class="fa-solid fa-tag"></i> Numéro</label>
                             <input type="text" value="<?= htmlspecialchars($number ?? $id) ?>" readonly
                                 class="input input-bordered w-full">
                         </div>
@@ -177,6 +191,3 @@ if (($subject ?? '') == "create" || (!isset($_GET['subject']) && empty($_GET['id
     });
 </script>
 
-</body>
-
-</html>

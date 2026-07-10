@@ -56,26 +56,39 @@ include __DIR__ . '/../backend/header.php';
                 </div>
                 <div class="flex flex items-center justify-between gap-5">
                     <div class=" flex items-center justify-between gap-5">
-                        <label class="label">
-                            <span class="label-text flex items-center gap-2">
-                                Numéro de Table :
-                            </span>
-                        </label>
-                        <select name="idtable" class="select select-bordered ">
-                            <option value="">Sélectionner une table</option>
-                            <option value="T01">Table 01</option>
-                            <option value="T02">Table 02</option>
-                            <option value="T03">Table 03</option>
+                       <label class="label mb-2">Numero de table :</label>
+                        <select name="idtable" required class="select select-bordered w-full">
+                            <option value="">-- Sélectionner une table --</option>
+                            <?php
+                            ?>
+                            <?php
+                            $libre = "SELECT * FROM restaurant_table WHERE occupation = 0  ORDER BY idtable ASC";
+                            $result = mysqli_query($connect, $libre);
+                            if (mysqli_num_rows($result) > 0) {
+                                while ($row = mysqli_fetch_assoc($result)) {
+                                    $tableNumber = (int) substr($row['idtable'], 1);
+                            ?>
+                                    <option value="<?= $row['idtable'] ?>">TABLE <?= $tableNumber ?></option>
+
+                            <?php
+                                }
+                            }
+                            else {
+                                ?>
+                                <option class="option bg-error desible" value="">Aucun table libre pour ce moment ...</option>
+                                <?php
+                            }
+                            ?>
                         </select>
                     </div>
-                    <div class="flex flex items-center justify-between gap-5">
-                        <button class="btn btn-info w-sm"><i class="fas fa-add"></i> Ajouter un Plat</button>
     
-                    </div>
                 </div>
 
                 <div>
-                    <label class="label">Plat Commandé</label>
+                    <div class="w-full flex items-center justify-between">
+                        <label class="label">Plat Commandé</label>
+                        <button class="btn btn-info"><i class="fas fa-add"></i> Ajouter un plat</button>
+                    </div>
                     <div class="bg-base-200 mt-3 p-4 rounded-box flex justify-between items-center">
                         <div class="text-center w-full">
 
@@ -86,13 +99,13 @@ include __DIR__ . '/../backend/header.php';
                 <div class="flex items-center justify-between gap-4">
                     <div class="flex items-center justify-between gap-4">
                         <label class="label">Quantité :</label>
-                        <input type="number" name="qte" min="1" value="1"
-                            class="input input-bordered text-center text-lg" />
+                        <input readonly type="text" name="qte" min="1" value="1"
+                            class="input input-bordered outline-none text-center text-lg" />
                     </div>
                     <div class="flex items-center justify-between gap-4">
                         <label class="label">Total (Ar) :</label>
                         <input type="text" readonly name="qte" min="1" value="1000,00 Ar"
-                            class="input input-bordered w-xl text-center text-lg" />
+                            class="input outline-none input-bordered w-xl text-center text-lg" />
                     </div>
                 </div>
                 <div class="flex justify-end gap-4 pt-6 border-t border-base-300">

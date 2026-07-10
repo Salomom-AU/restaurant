@@ -7,7 +7,8 @@ if (isset($_GET['message'])) {
         'succes' => ['text' => 'Menu supprimé avec succès', 'color' => 'bg-green-500/80'],
         'error' => ['text' => 'Erreur lors de la suppression du menu', 'color' => 'bg-red-500/90'],
         'updated' => ['text' => 'Menu modifier avec succes', 'color' => 'bg-green-500/80'],
-        'added' => ['text' => 'Menu ajouter avec succes', 'color' => 'bg-green-500/80']
+        'added' => ['text' => 'Menu ajouter avec succes', 'color' => 'bg-green-500/80'],
+        'delete' => ['text' => 'Menu supprimer avec succes', 'color' => 'bg-green-500/80']
     ];
 
     if (array_key_exists($_GET['message'], $statusMessages)) {
@@ -18,18 +19,20 @@ if (isset($_GET['message'])) {
 ?>
 <div class="w-full p-5 flex flex-col gap-5">
     <div class="flex justify-between items-center">
-        <h1 class="text-4xl font-bold">Gestion des Menus</h1>
-        <div class="flex items-center gap-2">
-            <p>Rechercher :</p>
-            <input type="text" id="searchInput" placeholder="Rechercher..."
-                class="w-xl input input-bordered">
+        <h1 class="text-4xl lg:text-5xl font-bold tracking-tight">Gestion des Menus</h1>
+        <div class="flex relative w-xl items-center gap-2">
+            <input type="text" id="searchInput"
+                placeholder="Rechercher une commande..."
+                class="input input-bordered w-full pl-12">
+            <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-base-content/50"></i>
+
         </div>
         <a href="../../../../restaurant/backend/menu.php?subject=create"
-            class="btn btn-info w-xs">
+            class="btn btn-info ">
             <i class="fas fa-plus"></i> Nouveau menu
         </a>
     </div>
-    <div class="overflow-x-auto h-130 bg-base-100 rounded-box shadow-2xl">
+    <div class="overflow-x-auto h-125 bg-base-100 rounded-box ">
         <table class="table table-zebra relative  w-full">
             <thead class="sticky z-100 top-0 ">
                 <tr class="bg-base-200">
@@ -62,7 +65,7 @@ if (isset($_GET['message'])) {
 
                                 <a href="../../../../restaurant/backend/menu.php?subject=delete&id=<?= $id ?>"
                                     class="btn btn-error btn-sm"
-                                    onclick="return confirm('Supprimer ce menu ?')">
+                                    onclick="return confirm('voulez-vous Supprimer ce menu ?')">
                                     <i class="fas fa-trash"></i>
                                 </a>
                             </td>
@@ -85,11 +88,9 @@ if (isset($_GET['message'])) {
 <script>
     (function() {
         const searchInput = document.getElementById('searchInput');
-        const cards = document.querySelectorAll('tr');
-
+        const cards = document.querySelectorAll('tbody tr');
         searchInput.addEventListener('keyup', function() {
             const filter = this.value.toLowerCase().trim();
-
             cards.forEach(card => {
                 const text = card.textContent.toLowerCase();
                 card.style.display = text.includes(filter) ? '' : 'none';
