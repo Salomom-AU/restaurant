@@ -1,0 +1,25 @@
+  <div class=" flex items-center justify-between gap-5">
+                        <label class="label mb-2">Numero de table :</label>
+                        <select name="idtable" required class="select select-bordered w-full">
+                            <option value="">-- Sélectionner une table --</option>
+                            <?php
+                            ?>
+                            <?php
+                            $libre = "SELECT * FROM restaurant_table WHERE occupation = 0  ORDER BY idtable ASC";
+                            $result = mysqli_query($connect, $libre);
+                            if (mysqli_num_rows($result) > 0) {
+                                while ($row = mysqli_fetch_assoc($result)) {
+                                    $tableNumber = (int) substr($row['idtable'], 1);
+                            ?>
+                                    <option value="<?= $row['idtable'] ?>">TABLE <?= sprintf("%02d" , $tableNumber) ?></option>
+
+                                <?php
+                                }
+                            } else {
+                                ?>
+                                <option class="option bg-error desible" value="">Aucun table libre pour ce moment ...</option>
+                            <?php
+                            }
+                            ?>
+                        </select>
+                    </div>

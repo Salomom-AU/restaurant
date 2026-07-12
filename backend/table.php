@@ -41,7 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
             $stmtUpdate = $connect->prepare($sqlUpdate);
             $stmtUpdate->bind_param("i", $numSupprime);
             $stmtUpdate->execute();
-
             $connect->commit();
 
             header("Location: ../../../../restaurant/frontend/main/main.php?table=1&message=delete");

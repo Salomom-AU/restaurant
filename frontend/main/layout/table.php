@@ -23,7 +23,7 @@ if (isset($_GET['message'])) {
         <h1 class="text-4xl lg:text-5xl font-bold tracking-tight">Gestion des Tables</h1>
         <div class="flex relative w-xl items-center gap-2">
             <input type="text" id="searchInput"
-                placeholder="Rechercher une commande..."
+                placeholder="Rechercher une table..."
                 class="input input-bordered w-full pl-12">
             <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-base-content/50"></i>
 
@@ -40,7 +40,7 @@ if (isset($_GET['message'])) {
                     <thead class="sticky z-100 top-0 ">
                         <tr class="bg-base-200">
                             <th><i class="fa-solid fa-tag"></i> CODE</th>
-                            <th><i class="fa-solid fa-chair"></i> TABLES</th>
+                            <th>TABLES</th>
                             <th class="text-center"> ACTIONS</th>
                         </tr>
                     </thead>
@@ -84,8 +84,8 @@ if (isset($_GET['message'])) {
                     <thead class="sticky z-100 top-0 ">
                         <tr class="bg-base-200">
                             <th><i class="fa-solid fa-tag"></i> CODE</th>
-                            <th><i class="fa-solid fa-chair"></i> TABLE</th>
-                            <th><i class="fa-solid fa-user"></i> CLIENT</th>
+                            <th> TABLE</th>
+                            <th> CLIENT</th>
                             <th class="text-center w-32"> ACTIONS</th>
                         </tr>
                     </thead>

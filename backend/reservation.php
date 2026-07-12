@@ -3,31 +3,31 @@ include __DIR__ . '/../backend/db.php';
 include __DIR__ . '/../backend/header.php';
 
 $allowedSubjects = ['create', 'update', 'delete'];
-$subject = isset($_GET['subject']) && in_array($_GET['subject'], $allowedSubjects) 
-    ? $_GET['subject'] 
+$subject = isset($_GET['subject']) && in_array($_GET['subject'], $allowedSubjects)
+    ? $_GET['subject']
     : '';
-    
+
 if ($subject == "create") {
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         try {
             $nomCli = trim($_POST['nomcli'] ?? '');
             $idTable = trim($_POST['idtable'] ?? '');
             $dateReserv = trim($_POST['date_reserver'] ?? '');
-            
+
             if (!empty($dateReserv) && !strtotime($dateReserv)) {
                 throw new Exception("Date de réservation invalide");
             }
-            
+
             if (empty($nomCli) || empty($idTable) || empty($dateReserv)) {
                 throw new Exception("Tous les champs sont obligatoires");
             }
-            
+
             $checkTable = "SELECT occupation FROM restaurant_table WHERE idtable = ?";
             $stmt = $connect->prepare($checkTable);
             $stmt->bind_param("s", $idTable);
             $stmt->execute();
             $result = $stmt->get_result();
-            
+
             if ($row = $result->fetch_assoc()) {
                 if ($row['occupation'] != 0) {
                     throw new Exception("Cette table est déjà occupée");
@@ -35,27 +35,28 @@ if ($subject == "create") {
             } else {
                 throw new Exception("Table non trouvée");
             }
-            
-            $query = "SELECT COUNT(*) AS total FROM reserver";
+
+            $query = "SELECT COUNT(*) AS total FROM reservation";
             $result = mysqli_query($connect, $query);
             $row = mysqli_fetch_assoc($result);
             $total = $row['total'] ?? 0;
             $idreserv = "RES" . sprintf("%03d", $total + 1);
+
             mysqli_begin_transaction($connect);
             try {
-                $sql = "INSERT INTO reserver (idreserv, idtable, date_de_reserv, date_reserve, nomcli) 
+                $sql = "INSERT INTO reservation (idreserv, idtable, date_de_reserv , date_reserve , nomcli) 
                         VALUES (?, ?, NOW(), ?, ?)";
                 $stmt = $connect->prepare($sql);
                 $stmt->bind_param("ssss", $idreserv, $idTable, $dateReserv, $nomCli);
                 $stmt->execute();
-                
-                $update = "UPDATE restaurant_table SET occupation = 2, designation = ? WHERE idtable = ?";
+
+                $update = "UPDATE restaurant_table SET occupation = 1, designation = ? WHERE idtable = ?";
                 $stmt2 = $connect->prepare($update);
                 $stmt2->bind_param("ss", $nomCli, $idTable);
                 $stmt2->execute();
-                
+
                 mysqli_commit($connect);
-                
+
                 header("Location: ../../../../restaurant/frontend/main/main.php?reserver=1&message=succes");
                 exit();
             } catch (Exception $e) {
@@ -64,6 +65,7 @@ if ($subject == "create") {
             }
         } catch (Exception $e) {
             error_log("Reservation error: " . $e->getMessage());
+            echo $e->getMessage();
             header("Location: ../../../../restaurant/frontend/main/main.php?reserver=1&message=error");
             exit();
         }
@@ -124,13 +126,13 @@ if ($subject == "create") {
         header("Location: ../../../../restaurant/frontend/main/main.php?reserver=1&message=error");
         exit();
     }
-    
-    $query = "SELECT * FROM reserver WHERE idreserv = ?";
+
+    $query = "SELECT * FROM reservation WHERE idreserv = ?";
     $stmt = $connect->prepare($query);
     $stmt->bind_param("s", $idreserv);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     if ($result->num_rows === 0) {
         header("Location: ../../../../restaurant/frontend/main/main.php?reserver=1&message=error");
         exit();
@@ -142,29 +144,51 @@ if ($subject == "create") {
             $nomCli = trim($_POST['nomcli'] ?? '');
             $idTable = trim($_POST['idtable'] ?? '');
             $dateReserv = trim($_POST['date_reserver'] ?? '');
-            
+
             if (empty($nomCli) || empty($idTable) || empty($dateReserv)) {
                 throw new Exception("Tous les champs sont obligatoires");
             }
-            
+
             if (!strtotime($dateReserv)) {
                 throw new Exception("Date invalide");
             }
-            
-            $sql = "UPDATE reserver SET idtable = ?, date_reserve = ?, nomcli = ? WHERE idreserv = ?";
-            $stmt = $connect->prepare($sql);
-            $stmt->bind_param("ssss", $idTable, $dateReserv, $nomCli, $idreserv);
-            $stmt->execute();
 
-            header("Location: ../../../../restaurant/frontend/main/main.php?reserver=1&message=updated");
-            exit();
+            $oldTable = $reservation['idtable'];
+
+            mysqli_begin_transaction($connect);
+            try {
+                if ($oldTable != $idTable) {
+                    $updateOld = "UPDATE restaurant_table SET occupation = 0, designation = '' WHERE idtable = ?";
+                    $stmt = $connect->prepare($updateOld);
+                    $stmt->bind_param("s", $oldTable);
+                    $stmt->execute();
+
+                    $updateNew = "UPDATE restaurant_table SET occupation = 1, designation = ? WHERE idtable = ?";
+                    $stmt = $connect->prepare($updateNew);
+                    $stmt->bind_param("ss", $nomCli, $idTable);
+                    $stmt->execute();
+                }
+
+                $sql = "UPDATE reservation SET idtable = ?, date_reserve = ?, nomcli = ? WHERE idreserv = ?";
+                $stmt = $connect->prepare($sql);
+                $stmt->bind_param("ssss", $idTable, $dateReserv, $nomCli, $idreserv);
+                $stmt->execute();
+
+                mysqli_commit($connect);
+
+                header("Location: ../../../../restaurant/frontend/main/main.php?reserver=1&message=updated");
+                exit();
+            } catch (Exception $e) {
+                mysqli_rollback($connect);
+                throw $e;
+            }
         } catch (Exception $e) {
             error_log("Update error: " . $e->getMessage());
             header("Location: ../../../../restaurant/frontend/main/main.php?reserver=1&message=error");
             exit();
         }
     }
-    ?>
+?>
     <div class="box w-full fixed top-0 left-0 z-[10000] backdrop-blur-3xl h-full">
         <div class="w-full h-full flex items-center justify-center">
             <a href="../../../../restaurant/frontend/main/main.php?reserver=1"
@@ -217,7 +241,7 @@ if ($subject == "create") {
             </div>
         </div>
     </div>
-    <?php
+<?php
 } elseif ($subject == "delete") {
     $idreserv = $_GET['id'] ?? '';
     if (empty($idreserv) || !preg_match('/^RES\d{3}$/', $idreserv)) {
@@ -225,13 +249,13 @@ if ($subject == "create") {
         exit();
     }
 
-    $query = "SELECT idtable FROM reserver WHERE idreserv = ?";
+    $query = "SELECT idtable FROM reservation WHERE idreserv = ?";
     $stmt = $connect->prepare($query);
     $stmt->bind_param("s", $idreserv);
     $stmt->execute();
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
-    
+
     if (!$row) {
         header("Location: ../../../../restaurant/frontend/main/main.php?reserver=1&message=error");
         exit();
@@ -239,46 +263,47 @@ if ($subject == "create") {
     $idTable = $row['idtable'];
 
     mysqli_begin_transaction($connect);
-    
+
     try {
-        $designation = "" ;
-        $sql = "DELETE FROM reserver WHERE idreserv = ?";
+        $sql = "DELETE FROM reservation WHERE idreserv = ?";
         $stmt = $connect->prepare($sql);
         $stmt->bind_param("s", $idreserv);
         $stmt->execute();
-        $update = "UPDATE restaurant_table SET occupation = 0, designation = ? WHERE idtable = ?";
+
+        $update = "UPDATE restaurant_table SET occupation = 0, designation = '' WHERE idtable = ?";
         $stmt2 = $connect->prepare($update);
-        $stmt2->bind_param("ss",$desingnation,$idTable);
+        $stmt2->bind_param("s", $idTable);
         $stmt2->execute();
+
         mysqli_commit($connect);
         header("Location: ../../../../restaurant/frontend/main/main.php?reserver=1&message=delete");
         exit();
     } catch (Exception $e) {
         mysqli_rollback($connect);
-         error_log("Delete error: " . $e->getMessage());
-         echo $e ;
-        // header("Location: ../../../../restaurant/frontend/main/main.php?reserver=1&message=error");
-        // exit();
+        error_log("Delete error: " . $e->getMessage());
+        echo $e->getMessage();
+        header("Location: ../../../../restaurant/frontend/main/main.php?reserver=1&message=error");
+        exit();
     }
 }
 ?>
 
 <script>
-gsap.from('.cardForm', {
-    scale: 0.7,
-    opacity: 0,
-    duration: 0.5,
-    ease: 'back.out(1.2)'
-});
+    gsap.from('.cardForm', {
+        scale: 0.7,
+        opacity: 0,
+        duration: 0.5,
+        ease: 'back.out(1.2)'
+    });
 
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('reservationForm');
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Traitement...';
-        });
-    }
-});
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('reservationForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Traitement...';
+            });
+        }
+    });
 </script>

@@ -22,7 +22,7 @@ if (isset($_GET['message'])) {
         <h1 class="text-4xl lg:text-5xl font-bold tracking-tight">Gestion des Menus</h1>
         <div class="flex relative w-xl items-center gap-2">
             <input type="text" id="searchInput"
-                placeholder="Rechercher une commande..."
+                placeholder="Rechercher un menu..."
                 class="input input-bordered w-full pl-12">
             <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-base-content/50"></i>
 
@@ -37,8 +37,8 @@ if (isset($_GET['message'])) {
             <thead class="sticky z-100 top-0 ">
                 <tr class="bg-base-200">
                     <th><i class="fa-solid fa-tag"></i> CODE</th>
-                    <th><i class="fa-solid fa-burger"></i> PLAT</th>
-                    <th><i class="fa-solid fa-coins"></i> Prix</th>
+                    <th> PLAT</th>
+                    <th> Prix</th>
                     <th class="text-center w-32">ACTIONS</th>
                 </tr>
             </thead>
@@ -49,13 +49,32 @@ if (isset($_GET['message'])) {
 
                 if (mysqli_num_rows($result) > 0) {
                     while ($row = mysqli_fetch_assoc($result)) {
+
                         $id = htmlspecialchars($row['idplat']);
                         $nom = htmlspecialchars($row['nomplat']);
                         $prix = number_format($row['pu'], 2, ',', ' ');
+
+                        $initials = '';
+                        $words = explode(' ', $row['nomplat']);
+                        foreach ($words as $word) {
+                            if (!empty($word)) {
+                                $initials .= strtoupper(substr($word, 0, 1));
+                            }
+                        }
+                        $initials = substr($initials, 0, 2);
+                        $colors = ['blue', 'green', 'purple', 'orange', 'pink', 'teal', 'indigo'];
+                        $color = $colors[rand(0, count($colors) - 1)];
                 ?>
                         <tr>
                             <td class="font-bold"><?= $id ?></td>
-                            <td class="font-bold"><?= $nom ?></td>
+                            <td>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 bg-<?= $color ?>-100 text-<?= $color ?>-600 rounded-full flex items-center justify-center font-medium text-sm">
+                                        <?= $initials ?>
+                                    </div>
+                                    <span><?= $nom ?></span>
+                                </div>
+                            </td>
                             <td class="font-bold"><?= $prix ?> Ar</td>
                             <td>
                                 <a href="../../../../restaurant/backend/menu.php?subject=update&id=<?= $id ?>&plat=<?= $nom ?>&prix=<?= $row['pu'] ?>"
