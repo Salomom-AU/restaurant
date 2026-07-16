@@ -103,12 +103,11 @@ if (isset($_GET['message'])) {
                                     <h2 class="">05</h2>
                                 </td>
                                 <td>
-
                                     <span><?= $row['designation'] ?></span>
-
                                 </td>
                                 <td>
-                                    <a href="../../../../restaurant/backend/table.php?subject=update&id=<?= $row['idtable'] ?>" class="btn btn-sm btn-success">Liberer</a>
+                                    <button class="btn btn-info btn-sm"><i class="fas fa-edit"> </i></button>
+                                    <!-- <a href="../../../../restaurant/backend/table.php?subject=update&id=<?= $row['idtable'] ?>" class="btn btn-sm btn-info"><i class="fas fa-edit"></i></a> -->
                                 </td>
                                 </tr>
 

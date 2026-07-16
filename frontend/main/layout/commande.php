@@ -4,12 +4,11 @@ if (!isset($_SESSION)) {
     session_start();
 }
 
-// Récupération des paramètres de filtrage
 $search = isset($_GET['search']) ? mysqli_real_escape_string($connect, $_GET['search']) : '';
 $type = isset($_GET['type']) ? mysqli_real_escape_string($connect, $_GET['type']) : '';
 $statut = isset($_GET['statut']) ? mysqli_real_escape_string($connect, $_GET['statut']) : '';
 
-// Construction de la requête
+
 $where = "1=1";
 if (!empty($search)) {
     $where .= " AND (c.idcom LIKE '%$search%' OR c.nomcli LIKE '%$search%')";
@@ -139,19 +138,20 @@ $result = mysqli_query($connect, $query);
                                 </span>
                             </td>
                             <td><?= date('H:i', strtotime($row['datecom'])) ?></td>
-                            <td>
+                           
                             <td><?= date('d/m/Y', strtotime($row['datecom'])) ?></td>
+                            <td></td>
 
                             <td class="text-center">
                                 <div class="flex justify-center gap-1">
-                                    <button onclick="imprimerFacture('<?= $row['idcom'] ?>')"
+                                    <a href="../../../../restaurant/backend/facture.php?id=<?= $row['idcom'] ?>&&plats=<?= $row['plats'] ?>"
                                         class="btn btn-sm  btn-info">
                                         <i class="fas fa-print"></i>
-                                    </button>
-                                    <button onclick="supprimerCommande('<?= $row['idcom'] ?>')"
+                                    </a>
+                                    <a href="../../../../restaurant/backend/commande.php?id=<?= $row['idcom'] ?>&&subject=delete"
                                         class="btn btn-sm  btn-error">
                                         <i class="fas fa-trash"></i>
-                                    </button>
+                                    </a>
                                 </div>
                             </td>
                         </tr>
@@ -189,32 +189,4 @@ $result = mysqli_query($connect, $query);
             row.style.display = text.includes(filter) ? '' : 'none';
         });
     });
-
-
-    function supprimerCommande(id) {
-        if (confirm('Êtes-vous sûr de vouloir supprimer cette commande ?')) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '../../../../restaurant/backend/commande.php';
-
-            const input1 = document.createElement('input');
-            input1.type = 'hidden';
-            input1.name = 'action';
-            input1.value = 'delete';
-
-            const input2 = document.createElement('input');
-            input2.type = 'hidden';
-            input2.name = 'idcom';
-            input2.value = id;
-
-            form.appendChild(input1);
-            form.appendChild(input2);
-            document.body.appendChild(form);
-            form.submit();
-        }
-    }
-
-    function imprimerFacture(id) {
-        window.open('facture.php?id=' + id, '_blank', 'width=800,height=600');
-    }
 </script>

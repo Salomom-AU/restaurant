@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $type = mysqli_real_escape_string($connect, $_POST['Type'] ?? '');
     $idtable = mysqli_real_escape_string($connect, $_POST['idtable'] ?? '');
     $panierData = json_decode($_POST['panier'] ?? '[]', true);
-    
+
     if (empty($nomCli)) {
         $error = "Le nom du client est requis";
     } elseif (empty($panierData)) {
@@ -22,28 +22,28 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
         $row = mysqli_fetch_assoc($result);
         $totalCom = $row['total_commande'] ?? 0;
         $idCommande = "C" . sprintf("%04d", ($totalCom + 1));
-        
+
         $typecom = ($type == "surTable") ? "surTable" : "Emporter";
-        
+
         $queryCommande = "INSERT INTO commande (idcom, nomcli, typecom, idtable, datecom) 
                           VALUES ('$idCommande', '$nomCli', '$typecom', " . ($type == "surTable" ? "'$idtable'" : "NULL") . ", NOW())";
-        
+
         if (mysqli_query($connect, $queryCommande)) {
             foreach ($panierData as $item) {
                 $idplat = mysqli_real_escape_string($connect, $item['id']);
                 $qte = (int)$item['qte'];
                 $prix = (float)$item['prix'];
-                
+
                 $queryDetail = "INSERT INTO commande_detail (idcom, idplat, quantite, prix_unitaire) 
                                 VALUES ('$idCommande', '$idplat', '$qte', '$prix')";
                 mysqli_query($connect, $queryDetail);
             }
-            
+
             if ($type == "surTable" && !empty($idtable)) {
                 $updateTable = "UPDATE restaurant_table SET occupation = 1 WHERE idtable = '$idtable'";
                 mysqli_query($connect, $updateTable);
             }
-            
+
             header("Location: ../../../../restaurant/frontend/main/main.php?commande=1&success=1");
             exit();
         } else {
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
         $result = mysqli_query($connect, $query);
         $row = mysqli_fetch_assoc($result);
         $totalCom = $row['total_commande'] ?? 0;
-        $nextId = "C" . sprintf("%04d", ($totalCom + 1));
+        $nextId = "A" . sprintf("%04d", ($totalCom + 1));
         $id = $nextId;
 ?>
         <div class="box w-full fixed top-0 left-0 z-[10000] backdrop-blur-3xl h-full">
@@ -76,14 +76,14 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
                         <span class="badge font-bold badge-success badge-xl"><i class="fa-solid fa-tag"></i> <?= $id ?></span>
                     </div>
                     <div class="divider my-1"></div>
-                    
+
                     <?php if ($error): ?>
-                    <div class="alert alert-error mb-4">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <?= htmlspecialchars($error) ?>
-                    </div>
+                        <div class="alert alert-error mb-4">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <?= htmlspecialchars($error) ?>
+                        </div>
                     <?php endif; ?>
-                    
+
                     <div class="flex gap-5">
                         <form method="POST" class="w-[50%] space-y-6" id="commandeForm" onsubmit="return preparerEnvoi()">
                             <div class="flex w-full justify-between items-center">
@@ -212,7 +212,40 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
 
 <?php
     }
+    if ($subject == "delete" && !empty($id)) {
+        $check = mysqli_query($connect, "SELECT * FROM commande WHERE idcom = '$id'");
+        
+            if (mysqli_num_rows($check)  == 0) {
+             
+                header("Location: ../../../../restaurant/frontend/main/main.php?commande=1&message=error");
+                exit();
+            }
+        
+
+        $rowIdTable = $check->fetch_assoc();
+        $idTable = $rowIdTable['idtable'];
+        mysqli_begin_transaction($connect);
+        if (!$rowIdTable) {
+            header("Location: ../../../../restaurant/frontend/main/main.php?commande=1&message=error");
+            exit();
+        }
+        try {
+            mysqli_query($connect, "DELETE FROM commande_detail WHERE idcom = '$id'");
+            mysqli_query($connect, "DELETE FROM commande WHERE idcom = '$id'");
+            mysqli_query($connect, "UPDATE restaurant_table SET occupation = 0  WHERE idtable = '$idTable'");
+            $connect->commit();
+
+            header("Location: ../../../../restaurant/frontend/main/main.php?commande=1&message=delete");
+            exit();
+        } catch (Exception $e) {
+            // echo $e->getMessage();
+            $connect->rollback();
+            header("Location: ../../../../restaurant/frontend/main/main.php?commande=1&message=error");
+            exit();
+        }
+    }
 }
+
 ?>
 
 <style>

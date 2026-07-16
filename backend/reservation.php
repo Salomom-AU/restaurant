@@ -152,9 +152,7 @@ if ($subject == "create") {
             if (!strtotime($dateReserv)) {
                 throw new Exception("Date invalide");
             }
-
             $oldTable = $reservation['idtable'];
-
             mysqli_begin_transaction($connect);
             try {
                 if ($oldTable != $idTable) {
@@ -162,7 +160,6 @@ if ($subject == "create") {
                     $stmt = $connect->prepare($updateOld);
                     $stmt->bind_param("s", $oldTable);
                     $stmt->execute();
-
                     $updateNew = "UPDATE restaurant_table SET occupation = 1, designation = ? WHERE idtable = ?";
                     $stmt = $connect->prepare($updateNew);
                     $stmt->bind_param("ss", $nomCli, $idTable);
@@ -255,21 +252,17 @@ if ($subject == "create") {
     $stmt->execute();
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
-
     if (!$row) {
         header("Location: ../../../../restaurant/frontend/main/main.php?reserver=1&message=error");
         exit();
     }
     $idTable = $row['idtable'];
-
     mysqli_begin_transaction($connect);
-
     try {
         $sql = "DELETE FROM reservation WHERE idreserv = ?";
         $stmt = $connect->prepare($sql);
         $stmt->bind_param("s", $idreserv);
         $stmt->execute();
-
         $update = "UPDATE restaurant_table SET occupation = 0, designation = '' WHERE idtable = ?";
         $stmt2 = $connect->prepare($update);
         $stmt2->bind_param("s", $idTable);

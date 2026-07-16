@@ -140,17 +140,6 @@ $profile = substr($nom , 0 , 2 ) ;
             </div>
         </div>
     </div>
-
-    <div class="mt-8 flex justify-center gap-4">
-        <a href="#" class="btn btn-info gap-2">
-            <i class="fas fa-edit"></i>
-            Modifier Profil
-        </a>
-        <a href="#" class="btn btn-error gap-2">
-            <i class="fas fa-sign-out-alt"></i>
-            Déconnexion
-        </a>
-    </div>
 </div>
 
 <script>

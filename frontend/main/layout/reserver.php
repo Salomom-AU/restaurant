@@ -79,7 +79,7 @@ if (isset($_GET['message'])) {
                             <td>
                                 <span class="badge badge-ghost"><?= htmlspecialchars($row['idtable']) ?></span>
                             </td>
-                            <td><?= date('d/m/Y', strtotime($row['date_reserve'])) ?></td>
+                            <td><?= date('F j Y', strtotime($row['date_reserve'])) ?></td>
                             <td>
                                 <span class="font-mono"><?= date('H:i', strtotime($row['date_reserve'])) ?></span>
                             </td>

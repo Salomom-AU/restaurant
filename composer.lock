@@ -1,0 +1,70 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "89c8e4632c88d8997639813abfb9092a",
+    "packages": [
+        {
+            "name": "arimac/fpdf",
+            "version": "1.8.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/arimacdev/FPDF.git",
+                "reference": "e70ea6167dc762e8fbda0a0a87489ed44f11322e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/arimacdev/FPDF/zipball/e70ea6167dc762e8fbda0a0a87489ed44f11322e",
+                "reference": "e70ea6167dc762e8fbda0a0a87489ed44f11322e",
+                "shasum": ""
+            },
+            "require": {
+                "ext-gd": "*",
+                "ext-zlib": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "fpdf.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Olivier Plathey",
+                    "email": "oliver@fpdf.org",
+                    "homepage": "http://fpdf.org/"
+                },
+                {
+                    "name": "Ramesh Kithsiri",
+                    "email": "ramesh@arimaclanka.com",
+                    "homepage": "https://arimaclanka.com/"
+                }
+            ],
+            "description": "FPDF is a PHP class which allows to generate PDF files with pure PHP. F from FPDF stands for Free: you may use it for any kind of usage and modify it to suit your needs.",
+            "homepage": "http://www.fpdf.org",
+            "keywords": [
+                "fpdf",
+                "pdf"
+            ],
+            "support": {
+                "source": "https://github.com/arimacdev/FPDF/tree/1.8.5"
+            },
+            "time": "2021-12-30T21:45:27+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {},
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {},
+    "platform-dev": {},
+    "plugin-api-version": "2.9.0"
+}

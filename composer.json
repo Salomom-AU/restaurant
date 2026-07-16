@@ -1,0 +1,5 @@
+{
+    "require": {
+        "arimac/fpdf": "^1.8"
+    }
+}
