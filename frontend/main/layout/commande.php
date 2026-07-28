@@ -5,19 +5,26 @@ if (!isset($_SESSION)) {
 }
 
 $search = isset($_GET['search']) ? mysqli_real_escape_string($connect, $_GET['search']) : '';
-$type = isset($_GET['type']) ? mysqli_real_escape_string($connect, $_GET['type']) : '';
-$statut = isset($_GET['statut']) ? mysqli_real_escape_string($connect, $_GET['statut']) : '';
-
+$type   = isset($_GET['type'])   ? mysqli_real_escape_string($connect, $_GET['type'])   : '';
 
 $where = "1=1";
+
 if (!empty($search)) {
-    $where .= " AND (c.idcom LIKE '%$search%' OR c.nomcli LIKE '%$search%')";
+    $where .= " AND (
+        c.idcom LIKE '%$search%' 
+        OR c.nomcli LIKE '%$search%'
+        OR EXISTS (
+            SELECT 1 
+            FROM commande_detail cd2 
+            JOIN menu m2 ON cd2.idplat = m2.idplat 
+            WHERE cd2.idcom = c.idcom 
+              AND m2.nomplat LIKE '%$search%'
+        )
+    )";
 }
+
 if (!empty($type)) {
     $where .= " AND c.typecom = '$type'";
-}
-if (!empty($statut)) {
-    $where .= " AND c.statut = '$statut'";
 }
 
 $query = "SELECT c.*, 
@@ -45,11 +52,10 @@ $result = mysqli_query($connect, $query);
         </a>
     </div>
 
-
     <form method="GET" class="flex flex-col lg:flex-row gap-4 mb-8">
         <div class="relative flex-1">
             <input type="text" id="searchInput" name="search"
-                placeholder="Rechercher une commande..."
+                placeholder="Rechercher (code, client ou plat)..."
                 class="input input-bordered w-full pl-12"
                 value="<?= htmlspecialchars($search) ?>">
             <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-base-content/50"></i>
@@ -60,26 +66,19 @@ $result = mysqli_query($connect, $query);
             <option value="surTable" <?= $type == 'surTable' ? 'selected' : '' ?>>Sur table</option>
             <option value="Emporter" <?= $type == 'Emporter' ? 'selected' : '' ?>>À emporter</option>
         </select>
-        <select name="statut" class="select select-bordered w-full lg:w-52">
-            <option value="">Tous les statuts</option>
-            <option value="en_cours" <?= $statut == 'en_cours' ? 'selected' : '' ?>>En cours</option>
-            <option value="paye" <?= $statut == 'paye' ? 'selected' : '' ?>>Payée</option>
-            <option value="annule" <?= $statut == 'annule' ? 'selected' : '' ?>>Annulée</option>
-        </select>
 
         <button type="submit" class="btn btn-outline">
             <i class="fas fa-filter"></i>
             Filtrer
         </button>
 
-        <?php if (!empty($search) || !empty($type) || !empty($statut)): ?>
+        <?php if (!empty($search) || !empty($type)): ?>
             <a href="?" class="btn btn-ghost">
                 <i class="fas fa-times"></i>
                 Réinitialiser
             </a>
         <?php endif; ?>
     </form>
-
 
     <div class="overflow-x-auto h-100 bg-base-100 rounded-box">
         <table class="table table-zebra w-full">
@@ -91,9 +90,8 @@ $result = mysqli_query($connect, $query);
                     <th class="text-center">QTÉ</th>
                     <th class="text-right">TOTAL</th>
                     <th>TYPE</th>
-                    <th>DATE</th>
                     <th>HEURE</th>
-                    <th>STATUT</th>
+                    <th>DATE</th>
                     <th class="text-center w-32">ACTIONS</th>
                 </tr>
             </thead>
@@ -131,25 +129,22 @@ $result = mysqli_query($connect, $query);
                             <td class="text-right font-semibold text-info">
                                 <?= number_format($row['total_prix'] ?? 0, 0, ',', ' ') ?> Ar
                             </td>
-
                             <td>
                                 <span class="badge <?= $row['typecom'] == 'surTable' ? 'badge-info' : 'badge-warning' ?>">
                                     <?= $row['typecom'] == 'surTable' ? 'Sur table' : 'À emporter' ?>
                                 </span>
                             </td>
                             <td><?= date('H:i', strtotime($row['datecom'])) ?></td>
-                           
                             <td><?= date('d/m/Y', strtotime($row['datecom'])) ?></td>
-                            <td></td>
-
                             <td class="text-center">
                                 <div class="flex justify-center gap-1">
-                                    <a href="../../../../restaurant/backend/facture.php?id=<?= $row['idcom'] ?>&&plats=<?= $row['plats'] ?>"
-                                        class="btn btn-sm  btn-info">
+                                    <a href="../../../../restaurant/backend/facture.php?id=<?= $row['idcom'] ?>"
+                                        class="btn btn-sm btn-info">
                                         <i class="fas fa-print"></i>
                                     </a>
-                                    <a href="../../../../restaurant/backend/commande.php?id=<?= $row['idcom'] ?>&&subject=delete"
-                                        class="btn btn-sm  btn-error">
+                                    <a href="../../../../restaurant/backend/commande.php?id=<?= $row['idcom'] ?>&subject=delete"
+                                        class="btn btn-sm btn-error"
+                                        onclick="return confirm('Supprimer cette commande ?')">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </div>
@@ -162,11 +157,11 @@ $result = mysqli_query($connect, $query);
                             <i class="fas fa-shopping-cart text-5xl text-base-content/20 mb-4"></i>
                             <p class="text-xl">Aucune commande trouvée</p>
                             <p class="text-base-content/60 mt-2">
-                                <?= (!empty($search) || !empty($type) || !empty($statut)) ?
+                                <?= (!empty($search) || !empty($type)) ?
                                     'Aucune commande ne correspond à vos filtres' :
                                     'Commencez par créer une nouvelle commande' ?>
                             </p>
-                            <?php if (!empty($search) || !empty($type) || !empty($statut)): ?>
+                            <?php if (!empty($search) || !empty($type)): ?>
                                 <a href="?" class="btn btn-sm btn-info mt-4">
                                     <i class="fas fa-times"></i> Réinitialiser les filtres
                                 </a>
