@@ -45,6 +45,13 @@ $result = mysqli_query($connect, $query);
 
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
         <h1 class="text-4xl lg:text-5xl font-bold tracking-tight">Gestion des Commandes</h1>
+                <div class="relative flex-1">
+            <input type="text" id="searchInput" name="search"
+                placeholder="Rechercher (code, client ou plat)..."
+                class="input input-bordered w-full pl-12"
+                value="<?= htmlspecialchars($search) ?>">
+            <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-base-content/50"></i>
+        </div>
         <a href="../../../../restaurant/backend/commande.php?subject=create"
             class="btn btn-info gap-2 whitespace-nowrap">
             <i class="fas fa-plus"></i>
@@ -52,26 +59,7 @@ $result = mysqli_query($connect, $query);
         </a>
     </div>
 
-    <form method="GET" class="flex flex-col lg:flex-row gap-4 mb-8">
-        <div class="relative flex-1">
-            <input type="text" id="searchInput" name="search"
-                placeholder="Rechercher (code, client ou plat)..."
-                class="input input-bordered w-full pl-12"
-                value="<?= htmlspecialchars($search) ?>">
-            <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-base-content/50"></i>
-        </div>
-
-        <select name="type" class="select select-bordered w-full lg:w-52">
-            <option value="">Tous les types</option>
-            <option value="surTable" <?= $type == 'surTable' ? 'selected' : '' ?>>Sur table</option>
-            <option value="Emporter" <?= $type == 'Emporter' ? 'selected' : '' ?>>À emporter</option>
-        </select>
-
-        <button type="submit" class="btn btn-outline">
-            <i class="fas fa-filter"></i>
-            Filtrer
-        </button>
-
+    <form method="GET" class="flex flex-col lg:flex-row gap-4">
         <?php if (!empty($search) || !empty($type)): ?>
             <a href="?" class="btn btn-ghost">
                 <i class="fas fa-times"></i>
@@ -80,7 +68,7 @@ $result = mysqli_query($connect, $query);
         <?php endif; ?>
     </form>
 
-    <div class="overflow-x-auto h-100 bg-base-100 rounded-box">
+    <div class="overflow-x-auto h-120 bg-base-100 rounded-box">
         <table class="table table-zebra w-full">
             <thead>
                 <tr class="bg-base-200">
@@ -138,7 +126,7 @@ $result = mysqli_query($connect, $query);
                             <td><?= date('d/m/Y', strtotime($row['datecom'])) ?></td>
                             <td class="text-center">
                                 <div class="flex justify-center gap-1">
-                                    <a href="../../../../restaurant/backend/facture.php?id=<?= $row['idcom'] ?>"
+                                    <a target="_blank" href="../../../../restaurant/backend/facture.php?id=<?= $row['idcom'] ?>"
                                         class="btn btn-sm btn-info">
                                         <i class="fas fa-print"></i>
                                     </a>

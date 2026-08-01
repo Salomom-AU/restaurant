@@ -188,9 +188,7 @@ if (!empty($dateDebut) || !empty($dateFin)) {
             while ($row = mysqli_fetch_assoc($result)):
             ?>
               <div class="flex items-center gap-3 p-3 rounded-lg bg-base-200/50 hover:bg-base-200 transition">
-                <div class="w-8 h-8 rounded-full text-warning flex items-center justify-center font-bold text-sm">
-                  <i class="fas text-xl fa-award"></i>
-                </div>
+        
                 <div class="flex-1 min-w-0">
 
 

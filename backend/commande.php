@@ -17,18 +17,36 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     } elseif ($type == "surTable" && empty($idtable)) {
         $error = "Veuillez sélectionner une table";
     } else {
-        $query = "SELECT COUNT(*) AS total_commande FROM commande";
+        // Génération d'ID sûre avec MAX
+        $query = "SELECT MAX(CAST(SUBSTRING(idcom, 2) AS UNSIGNED)) AS max_num FROM commande";
         $result = mysqli_query($connect, $query);
         $row = mysqli_fetch_assoc($result);
-        $totalCom = $row['total_commande'] ?? 0;
-        $idCommande = "C" . sprintf("%04d", ($totalCom + 1));
+        $nextNum = ((int)($row['max_num'] ?? 0)) + 1;
+        $idCommande = "C" . sprintf("%04d", $nextNum);
 
         $typecom = ($type == "surTable") ? "surTable" : "Emporter";
 
-        $queryCommande = "INSERT INTO commande (idcom, nomcli, typecom, idtable, datecom) 
-                          VALUES ('$idCommande', '$nomCli', '$typecom', " . ($type == "surTable" ? "'$idtable'" : "NULL") . ", NOW())";
+        mysqli_begin_transaction($connect);
+        try {
+            if ($type == "surTable") {
+                // Vérifier que la table est toujours libre
+                $check = mysqli_query($connect, "SELECT occupation FROM restaurant_table WHERE idtable = '$idtable'");
+                $tableRow = mysqli_fetch_assoc($check);
+                if (!$tableRow || $tableRow['occupation'] != 0) {
+                    throw new Exception("Cette table n'est plus disponible");
+                }
 
-        if (mysqli_query($connect, $queryCommande)) {
+                $queryCommande = "INSERT INTO commande (idcom, nomcli, typecom, idtable, datecom) 
+                                  VALUES ('$idCommande', '$nomCli', '$typecom', '$idtable', NOW())";
+            } else {
+                $queryCommande = "INSERT INTO commande (idcom, nomcli, typecom, idtable, datecom) 
+                                  VALUES ('$idCommande', '$nomCli', '$typecom', NULL, NOW())";
+            }
+
+            if (!mysqli_query($connect, $queryCommande)) {
+                throw new Exception(mysqli_error($connect));
+            }
+
             foreach ($panierData as $item) {
                 $idplat = mysqli_real_escape_string($connect, $item['id']);
                 $qte = (int)$item['qte'];
@@ -36,18 +54,25 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
                 $queryDetail = "INSERT INTO commande_detail (idcom, idplat, quantite, prix_unitaire) 
                                 VALUES ('$idCommande', '$idplat', '$qte', '$prix')";
-                mysqli_query($connect, $queryDetail);
+                if (!mysqli_query($connect, $queryDetail)) {
+                    throw new Exception(mysqli_error($connect));
+                }
             }
 
             if ($type == "surTable" && !empty($idtable)) {
-                $updateTable = "UPDATE restaurant_table SET occupation = 1 WHERE idtable = '$idtable'";
+                $updateTable = "UPDATE restaurant_table 
+                                SET occupation = 1, designation = '$nomCli' 
+                                WHERE idtable = '$idtable'";
                 mysqli_query($connect, $updateTable);
             }
 
+            mysqli_commit($connect);
+
             header("Location: ../../../../restaurant/frontend/main/main.php?commande=1&success=1");
             exit();
-        } else {
-            $error = "Erreur lors de l'enregistrement : " . mysqli_error($connect);
+        } catch (Exception $e) {
+            mysqli_rollback($connect);
+            $error = "Erreur lors de l'enregistrement : " . $e->getMessage();
         }
     }
 }
@@ -57,11 +82,12 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     $id = $_GET['id'] ?? '';
 
     if ($subject == "create") {
-        $query = "SELECT COUNT(*) AS total_commande FROM commande";
+        // Affichage de l'ID suivant (avec MAX)
+        $query = "SELECT MAX(CAST(SUBSTRING(idcom, 2) AS UNSIGNED)) AS max_num FROM commande";
         $result = mysqli_query($connect, $query);
         $row = mysqli_fetch_assoc($result);
-        $totalCom = $row['total_commande'] ?? 0;
-        $nextId = "A" . sprintf("%04d", ($totalCom + 1));
+        $nextNum = ((int)($row['max_num'] ?? 0)) + 1;
+        $nextId = "C" . sprintf("%04d", $nextNum);
         $id = $nextId;
 ?>
         <div class="box w-full fixed top-0 left-0 z-[10000] backdrop-blur-3xl h-full">
@@ -119,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
                                         }
                                     } else {
                                         ?>
-                                        <option class="option bg-error desible" value="">Aucun table libre pour ce moment ...</option>
+                                        <option class="option bg-error" value="" disabled>Aucune table libre pour le moment...</option>
                                     <?php
                                     }
                                     ?>
@@ -214,38 +240,35 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     }
     if ($subject == "delete" && !empty($id)) {
         $check = mysqli_query($connect, "SELECT * FROM commande WHERE idcom = '$id'");
-        
-            if (mysqli_num_rows($check)  == 0) {
-             
-                header("Location: ../../../../restaurant/frontend/main/main.php?commande=1&message=error");
-                exit();
-            }
-        
 
-        $rowIdTable = $check->fetch_assoc();
-        $idTable = $rowIdTable['idtable'];
-        mysqli_begin_transaction($connect);
-        if (!$rowIdTable) {
+        if (mysqli_num_rows($check) == 0) {
             header("Location: ../../../../restaurant/frontend/main/main.php?commande=1&message=error");
             exit();
         }
+
+        $rowIdTable = $check->fetch_assoc();
+        $idTable = $rowIdTable['idtable'];
+
+        mysqli_begin_transaction($connect);
         try {
             mysqli_query($connect, "DELETE FROM commande_detail WHERE idcom = '$id'");
             mysqli_query($connect, "DELETE FROM commande WHERE idcom = '$id'");
-            mysqli_query($connect, "UPDATE restaurant_table SET occupation = 0  WHERE idtable = '$idTable'");
+
+            if (!empty($idTable)) {
+                mysqli_query($connect, "UPDATE restaurant_table SET occupation = 0, designation = '' WHERE idtable = '$idTable'");
+            }
+
             $connect->commit();
 
             header("Location: ../../../../restaurant/frontend/main/main.php?commande=1&message=delete");
             exit();
         } catch (Exception $e) {
-            // echo $e->getMessage();
             $connect->rollback();
             header("Location: ../../../../restaurant/frontend/main/main.php?commande=1&message=error");
             exit();
         }
     }
 }
-
 ?>
 
 <style>
@@ -263,21 +286,23 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
     const tableSection = document.getElementById('tableSection');
 
     function updateTypeCommande() {
-        if (checkRest.checked) {
+        if (checkRest && checkRest.checked) {
             checkPart.checked = false;
             tableSection.style.display = 'flex';
             document.querySelector('select[name="idtable"]').required = true;
         }
-        if (checkPart.checked) {
+        if (checkPart && checkPart.checked) {
             checkRest.checked = false;
             tableSection.style.display = 'none';
             document.querySelector('select[name="idtable"]').required = false;
         }
     }
 
-    updateTypeCommande();
-    checkRest.addEventListener('change', updateTypeCommande);
-    checkPart.addEventListener('change', updateTypeCommande);
+    if (checkRest && checkPart) {
+        updateTypeCommande();
+        checkRest.addEventListener('change', updateTypeCommande);
+        checkPart.addEventListener('change', updateTypeCommande);
+    }
 
     function ajouterPlat(btn) {
         const tr = btn.closest('tr');
@@ -301,6 +326,8 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
 
     function afficherPanier() {
         const panierDiv = document.getElementById('panier');
+        if (!panierDiv) return;
+
         panierDiv.innerHTML = '';
         let total = 0;
         let qteTotal = 0;
@@ -325,20 +352,24 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
                         <span class="font-medium">${item.nom}</span>
                     </div>
                     <div class="flex items-center gap-3">
-                        <button onclick="changerQte(${index}, -1)" class="btn btn-xs btn-error"><i class="fas fa-minus"></i></button>
+                        <button type="button" onclick="changerQte(${index}, -1)" class="btn btn-xs btn-error"><i class="fas fa-minus"></i></button>
                         <span class="font-bold w-6 text-center">${item.qte}</span>
-                        <button onclick="changerQte(${index}, 1)" class="btn btn-xs btn-success"><i class="fas fa-plus"></i></button>
+                        <button type="button" onclick="changerQte(${index}, 1)" class="btn btn-xs btn-success"><i class="fas fa-plus"></i></button>
                         <span class="font-semibold ml-4">${itemTotal} Ar</span>
-                        <button onclick="supprimerPlat(${index})" class="btn btn-xs btn-ghost text-error"><i class="fas fa-close"></i></button>
+                        <button type="button" onclick="supprimerPlat(${index})" class="btn btn-xs btn-ghost text-error"><i class="fas fa-close"></i></button>
                     </div>
                 `;
                 panierDiv.appendChild(row);
             });
         }
 
-        document.getElementById('totalQte').value = qteTotal;
-        document.getElementById('totalPrix').value = total;
-        document.getElementById('panierData').value = JSON.stringify(panier);
+        const totalQte = document.getElementById('totalQte');
+        const totalPrix = document.getElementById('totalPrix');
+        const panierData = document.getElementById('panierData');
+
+        if (totalQte) totalQte.value = qteTotal;
+        if (totalPrix) totalPrix.value = total;
+        if (panierData) panierData.value = JSON.stringify(panier);
     }
 
     function changerQte(index, delta) {

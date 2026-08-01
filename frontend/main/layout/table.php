@@ -19,8 +19,10 @@ if (isset($_GET['message'])) {
 ?>
 
 <div class="p-5 flex flex-col gap-5">
+
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <h1 class="text-4xl lg:text-5xl font-bold tracking-tight">Gestion des Tables</h1>
+
         <div class="flex relative w-full lg:w-xl items-center gap-2">
             <input type="text" id="searchInput"
                 placeholder="Rechercher une table..."
@@ -90,7 +92,6 @@ if (isset($_GET['message'])) {
             </div>
         </div>
 
-
         <div class="w-full">
             <h2 class="text-xl font-semibold mb-3 flex items-center gap-2">
                 <span class="w-3 h-3 rounded-full bg-error"></span>
@@ -110,15 +111,31 @@ if (isset($_GET['message'])) {
                     </thead>
                     <tbody>
                         <?php
-                        $occuper = "SELECT * FROM restaurant_table 
-                                    WHERE occupation = 1 OR occupation = 2 
-                                    ORDER BY idtable ASC";
+                        $occuper = "
+                            SELECT 
+                                t.idtable,
+                                t.occupation,
+                                t.designation,
+                                (
+                                    SELECT c.nomcli 
+                                    FROM commande c 
+                                    WHERE c.idtable = t.idtable 
+                                    ORDER BY c.datecom DESC 
+                                    LIMIT 1
+                                ) AS nom_client
+                            FROM restaurant_table t
+                            WHERE t.occupation = 1 OR t.occupation = 2
+                            ORDER BY t.idtable ASC
+                        ";
                         $result = mysqli_query($connect, $occuper);
 
                         if (mysqli_num_rows($result) > 0):
                             while ($row = mysqli_fetch_assoc($result)):
                                 $tableNumber = (int) substr($row['idtable'], 1);
                                 $isReserve = ($row['occupation'] == 2);
+                                $nomClient = !empty($row['designation']) 
+                                    ? $row['designation'] 
+                                    : ($row['nom_client'] ?? '—');
                         ?>
                                 <tr>
                                     <td>
@@ -130,17 +147,13 @@ if (isset($_GET['message'])) {
                                         TABLE <?= sprintf("%02d", $tableNumber) ?>
                                     </td>
                                     <td>
-                                        <?= htmlspecialchars($row['designation'] ?: '—') ?>
+                                        <?= htmlspecialchars($nomClient) ?>
                                     </td>
                                     <td>
                                         <?php if ($isReserve): ?>
-                                            <span class="badge badge-warning gap-1">
-                                             Réservée
-                                            </span>
+                                            <span class="badge badge-warning gap-1">Réservée</span>
                                         <?php else: ?>
-                                            <span class="badge badge-error gap-1">
-                                               Occupée
-                                            </span>
+                                            <span class="badge badge-error gap-1">Occupée</span>
                                         <?php endif; ?>
                                     </td>
                                     <td>

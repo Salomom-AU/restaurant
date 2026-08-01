@@ -18,9 +18,15 @@ if ($subject == "create") {
                 throw new Exception("Tous les champs sont obligatoires");
             }
 
+            $dateReserv = str_replace('T', ' ', $dateReserv);
+            if (strlen($dateReserv) === 16) {
+                $dateReserv .= ':00';
+            }
+
             if (!strtotime($dateReserv)) {
                 throw new Exception("Date de réservation invalide");
             }
+
             $checkTable = "SELECT occupation FROM restaurant_table WHERE idtable = ?";
             $stmt = $connect->prepare($checkTable);
             $stmt->bind_param("s", $idTable);
@@ -34,6 +40,7 @@ if ($subject == "create") {
             } else {
                 throw new Exception("Table non trouvée");
             }
+
             $debutFenetre = date('Y-m-d H:i:s', strtotime($dateReserv . ' -2 hours'));
             $finFenetre   = date('Y-m-d H:i:s', strtotime($dateReserv . ' +2 hours'));
 
@@ -46,25 +53,34 @@ if ($subject == "create") {
             if ($stmt->get_result()->num_rows > 0) {
                 throw new Exception("Cette table a déjà une réservation sur ce créneau");
             }
-            $query = "SELECT COUNT(*) AS total FROM reservation";
+
+            $query = "SELECT MAX(CAST(SUBSTRING(idreserv, 4) AS UNSIGNED)) AS max_num FROM reservation";
             $result = mysqli_query($connect, $query);
             $row = mysqli_fetch_assoc($result);
-            $total = $row['total'] ?? 0;
-            $idreserv = "RES" . sprintf("%03d", $total + 1);
+            $nextNum = ((int)($row['max_num'] ?? 0)) + 1;
+            $idreserv = "RES" . sprintf("%03d", $nextNum);
 
             mysqli_begin_transaction($connect);
             try {
                 $sql = "INSERT INTO reservation (idreserv, idtable, date_de_reserv, date_reserve, nomcli) 
                         VALUES (?, ?, NOW(), ?, ?)";
                 $stmt = $connect->prepare($sql);
+                if (!$stmt) {
+                    throw new Exception("Erreur prepare : " . $connect->error);
+                }
                 $stmt->bind_param("ssss", $idreserv, $idTable, $dateReserv, $nomCli);
-                $stmt->execute();
+                if (!$stmt->execute()) {
+                    throw new Exception("Erreur execute : " . $stmt->error);
+                }
+
                 $update = "UPDATE restaurant_table 
                            SET occupation = 2, designation = ? 
                            WHERE idtable = ?";
                 $stmt2 = $connect->prepare($update);
                 $stmt2->bind_param("ss", $nomCli, $idTable);
-                $stmt2->execute();
+                if (!$stmt2->execute()) {
+                    throw new Exception("Erreur update table : " . $stmt2->error);
+                }
 
                 mysqli_commit($connect);
 
@@ -106,11 +122,14 @@ if ($subject == "create") {
                             <?php
                             $libre = "SELECT * FROM restaurant_table WHERE occupation = 0 ORDER BY idtable ASC";
                             $result = mysqli_query($connect, $libre);
+                            if (mysqli_num_rows($result) == 0) {
+                                echo '<option value="" disabled>Aucune table libre disponible</option>';
+                            }
                             while ($row = mysqli_fetch_assoc($result)):
                                 $num = (int) substr($row['idtable'], 1);
                             ?>
                                 <option value="<?= htmlspecialchars($row['idtable']) ?>">
-                                    Table <?= $num ?> (<?= htmlspecialchars($row['idtable']) ?>)
+                                    Table <?= sprintf("%02d", $num) ?> (<?= htmlspecialchars($row['idtable']) ?>)
                                 </option>
                             <?php endwhile; ?>
                         </select>
@@ -161,6 +180,11 @@ if ($subject == "create") {
                 throw new Exception("Tous les champs sont obligatoires");
             }
 
+            $dateReserv = str_replace('T', ' ', $dateReserv);
+            if (strlen($dateReserv) === 16) {
+                $dateReserv .= ':00';
+            }
+
             if (!strtotime($dateReserv)) {
                 throw new Exception("Date invalide");
             }
@@ -174,22 +198,25 @@ if ($subject == "create") {
                     $stmt = $connect->prepare($updateOld);
                     $stmt->bind_param("s", $oldTable);
                     $stmt->execute();
+
                     $updateNew = "UPDATE restaurant_table SET occupation = 2, designation = ? WHERE idtable = ?";
                     $stmt = $connect->prepare($updateNew);
                     $stmt->bind_param("ss", $nomCli, $idTable);
                     $stmt->execute();
                 } else {
-
                     $updateSame = "UPDATE restaurant_table SET designation = ? WHERE idtable = ?";
                     $stmt = $connect->prepare($updateSame);
                     $stmt->bind_param("ss", $nomCli, $idTable);
                     $stmt->execute();
                 }
+
                 $sql = "UPDATE reservation SET idtable = ?, date_reserve = ?, nomcli = ? WHERE idreserv = ?";
                 $stmt = $connect->prepare($sql);
                 $stmt->bind_param("ssss", $idTable, $dateReserv, $nomCli, $idreserv);
                 $stmt->execute();
+
                 mysqli_commit($connect);
+
                 header("Location: ../../../../restaurant/frontend/main/main.php?reserver=1&message=updated");
                 exit();
             } catch (Exception $e) {
@@ -224,7 +251,6 @@ if ($subject == "create") {
                         <select name="idtable" required class="select select-bordered w-full">
                             <option value="">-- Choisir une table --</option>
                             <?php
-                            // Tables libres + la table actuelle de la réservation
                             $tables = "SELECT * FROM restaurant_table 
                                        WHERE occupation = 0 OR idtable = ? 
                                        ORDER BY idtable ASC";
@@ -237,7 +263,7 @@ if ($subject == "create") {
                                 $selected = $row['idtable'] == $reservation['idtable'] ? 'selected' : '';
                             ?>
                                 <option value="<?= htmlspecialchars($row['idtable']) ?>" <?= $selected ?>>
-                                    Table <?= $num ?> (<?= htmlspecialchars($row['idtable']) ?>)
+                                    Table <?= sprintf("%02d", $num) ?> (<?= htmlspecialchars($row['idtable']) ?>)
                                 </option>
                             <?php endwhile; ?>
                         </select>
@@ -280,12 +306,14 @@ if ($subject == "create") {
     }
 
     $idTable = $row['idtable'];
+
     mysqli_begin_transaction($connect);
     try {
         $sql = "DELETE FROM reservation WHERE idreserv = ?";
         $stmt = $connect->prepare($sql);
         $stmt->bind_param("s", $idreserv);
         $stmt->execute();
+
         $update = "UPDATE restaurant_table SET occupation = 0, designation = '' WHERE idtable = ?";
         $stmt2 = $connect->prepare($update);
         $stmt2->bind_param("s", $idTable);

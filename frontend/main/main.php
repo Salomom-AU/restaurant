@@ -150,11 +150,11 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== "accepter") {
 
                 <div class="divider my-1"></div>
                 <li>
-                    <a href="?parametres=1" class="tooltip tooltip-right" data-tip="parametres">
+                    <a href="?parametres=1" class="tooltip tooltip-right" data-tip="utilisateurs">
                         <div class="flex items-center justify-center w-full h-12 rounded-xl hover:bg-primary/10 transition-all duration-300 cursor-pointer">
-                            <i class="fas fa-gear text-xl"></i>
+                            <i class="fas fa-user text-xl"></i>
                         </div>
-                        <label class="asideTile hidden label" for="">Parametres</label>
+                        <label class="asideTile hidden label" for="">Utilisateurs</label>
                     </a>
 
                 </li>

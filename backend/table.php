@@ -24,16 +24,16 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
                                required
                                class="input input-bordered w-full text-center text-lg" 
                                autofocus>
-                    </div>
-                    <div class="flex gap-3 justify-center mt-6">
-                        <button type="submit" class="btn w-full btn-primary">
-                            Créer
-                        </button>
-                        <a href="../../../../restaurant/frontend/main/main.php?table=1" 
-                           class="btn btn-ghost">
-                            Annuler
-                        </a>
-                    </div>
+                               <div class="flex gap-3 justify-center mt-6">
+                                   <button type="submit" class="btn w-full btn-primary">
+                                       Créer
+                                   </button>
+                                   <a href="../../../../restaurant/frontend/main/main.php?table=1" 
+                                      class="btn btn-ghost">
+                                       Annuler
+                                   </a>
+                               </div>
+                            </div>
                 </form>
             </div>
         </div>
