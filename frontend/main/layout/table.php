@@ -18,8 +18,7 @@ if (isset($_GET['message'])) {
 }
 ?>
 
-<div class="p-5 flex flex-col gap-5">
-
+<div class="overflow-x-auto w-full p-5 flex flex-col gap-2 h-148  max-w-screen-2xl mx-auto">
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <h1 class="text-4xl lg:text-5xl font-bold tracking-tight">Gestion des Tables</h1>
 
@@ -35,16 +34,14 @@ if (isset($_GET['message'])) {
         </a>
     </div>
 
-
     <div class="flex flex-col lg:flex-row gap-6 justify-between">
-
         <div class="w-full">
             <h2 class="text-xl font-semibold mb-3 flex items-center gap-2">
                 <span class="w-3 h-3 rounded-full bg-success"></span>
                 Tables libres
             </h2>
 
-            <div class="overflow-x-auto h-125 bg-base-100 rounded-box">
+            <div class="overflow-x-auto h-110 bg-base-100 rounded-box">
                 <table class="table text-center table-zebra w-full">
                     <thead class="sticky top-0 z-10">
                         <tr class="bg-base-200">
@@ -71,16 +68,16 @@ if (isset($_GET['message'])) {
                                     </td>
                                     <td>
                                         <a href="../../../../restaurant/backend/table.php?subject=delete&id=<?= urlencode($row['idtable']) ?>"
-                                           class="btn btn-sm btn-error"
-                                           onclick="return confirm('Supprimer cette table ?')">
+                                            class="btn btn-sm btn-error"
+                                            onclick="return confirm('Supprimer cette table ?')">
                                             <i class="fas fa-trash"></i>
                                         </a>
                                     </td>
                                 </tr>
-                        <?php
+                            <?php
                             endwhile;
                         else:
-                        ?>
+                            ?>
                             <tr>
                                 <td colspan="3" class="py-10 text-base-content/50">
                                     Aucune table libre
@@ -133,8 +130,8 @@ if (isset($_GET['message'])) {
                             while ($row = mysqli_fetch_assoc($result)):
                                 $tableNumber = (int) substr($row['idtable'], 1);
                                 $isReserve = ($row['occupation'] == 2);
-                                $nomClient = !empty($row['designation']) 
-                                    ? $row['designation'] 
+                                $nomClient = !empty($row['designation'])
+                                    ? $row['designation']
                                     : ($row['nom_client'] ?? '—');
                         ?>
                                 <tr>
@@ -158,16 +155,16 @@ if (isset($_GET['message'])) {
                                     </td>
                                     <td>
                                         <a href="../../../../restaurant/backend/table.php?subject=update&id=<?= urlencode($row['idtable']) ?>"
-                                           class="btn btn-sm btn-info"
-                                           title="Libérer la table">
+                                            class="btn btn-sm btn-info"
+                                            title="Libérer la table">
                                             <i class="fas fa-unlock"></i>
                                         </a>
                                     </td>
                                 </tr>
-                        <?php
+                            <?php
                             endwhile;
                         else:
-                        ?>
+                            ?>
                             <tr>
                                 <td colspan="5" class="py-10 text-base-content/50">
                                     Aucune table occupée ou réservée
@@ -178,7 +175,6 @@ if (isset($_GET['message'])) {
                 </table>
             </div>
         </div>
-
     </div>
 </div>
 

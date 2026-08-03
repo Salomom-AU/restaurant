@@ -44,9 +44,8 @@ if (!$result) {
     }
 }
 ?>
-
+  <div class="overflow-x-auto w-full p-5 flex flex-col gap-2 h-148  max-w-screen-2xl mx-auto">
 <div class="overflow-x-auto w-full p-5 flex flex-col gap-6 max-w-screen-2xl mx-auto">
-
     <div class="card bg-base-200">
         <div class="card-body">
             <div class="flex flex-col md:flex-row items-center gap-8">
@@ -111,7 +110,7 @@ if (!$result) {
                 </form>
             </div>
 
-            <div class="overflow-x-auto h-50 bg-base-100 rounded-box">
+            <div class="overflow-x-auto h-100 bg-base-100 rounded-box">
                 <table class="table table-zebra w-full">
                     <thead>
                         <tr class="bg-base-200">
@@ -157,7 +156,7 @@ if (!$result) {
             <?php endif; ?>
         </div>
     </div>
-
+</div>
 </div>
 
 <script>

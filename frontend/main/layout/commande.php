@@ -3,12 +3,9 @@ include __DIR__ . '/../../../backend/db.php';
 if (!isset($_SESSION)) {
     session_start();
 }
-
 $search = isset($_GET['search']) ? mysqli_real_escape_string($connect, $_GET['search']) : '';
 $type   = isset($_GET['type'])   ? mysqli_real_escape_string($connect, $_GET['type'])   : '';
-
 $where = "1=1";
-
 if (!empty($search)) {
     $where .= " AND (
         c.idcom LIKE '%$search%' 
@@ -22,7 +19,6 @@ if (!empty($search)) {
         )
     )";
 }
-
 if (!empty($type)) {
     $where .= " AND c.typecom = '$type'";
 }
@@ -37,15 +33,30 @@ $query = "SELECT c.*,
           WHERE $where
           GROUP BY c.idcom 
           ORDER BY c.datecom ASC";
-
 $result = mysqli_query($connect, $query);
+
+
+$status = '';
+$statusColor = '';
+if (isset($_GET['message'])) {
+    $statusMessages = [
+        'succes' => ['text' => 'Reservation pris avec succès', 'color' => 'bg-green-500/80'],
+        'error' => ['text' => 'Une erreur est survenu , veuillez resayer !', 'color' => 'bg-red-500/90'],
+        'updated' => ['text' => 'Reservation modifier avec succes', 'color' => 'bg-green-500/80'],
+        'added' => ['text' => 'Reservation ajouter avec succes', 'color' => 'bg-green-500/80'],
+        'delete' => ['text' => 'Reservation supprimer avec succes', 'color' => 'bg-green-500/80']
+    ];
+    if (array_key_exists($_GET['message'], $statusMessages)) {
+        $status = $statusMessages[$_GET['message']]['text'];
+        $statusColor = $statusMessages[$_GET['message']]['color'];
+    }
+}
 ?>
 
 <div class="p-5 max-w-screen-2xl mx-auto">
-
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
         <h1 class="text-4xl lg:text-5xl font-bold tracking-tight">Gestion des Commandes</h1>
-                <div class="relative flex-1">
+        <div class="relative flex-1">
             <input type="text" id="searchInput" name="search"
                 placeholder="Rechercher (code, client ou plat)..."
                 class="input input-bordered w-full pl-12"

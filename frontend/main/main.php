@@ -76,9 +76,6 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== "accepter") {
         </div>
     </div>
     <div class="flex items-center gap-5">
-        <button class="btn">
-            <i class="fas fa-bell text-xl"></i>
-        </button>
         <form method="GET">
             <button type="submit" name="logout" class="btn btn-error  gap-2">
                 <i class="fa-solid fa-right-from-bracket"></i>

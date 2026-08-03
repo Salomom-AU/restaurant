@@ -67,8 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             }
 
             mysqli_commit($connect);
-
-            header("Location: ../../../../restaurant/frontend/main/main.php?commande=1&success=1");
+            header("Location: ../../../../restaurant/frontend/main/main.php?commande=success");
             exit();
         } catch (Exception $e) {
             mysqli_rollback($connect);

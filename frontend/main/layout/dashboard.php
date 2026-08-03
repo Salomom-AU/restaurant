@@ -81,10 +81,10 @@ if (!empty($dateDebut) || !empty($dateFin)) {
 }
 ?>
 
-<div class="">
-  <div class="overflow-x-auto w-full p-5 flex flex-col gap-2 h-150  max-w-screen-2xl mx-auto">
+
+  <div class="overflow-x-auto w-full p-5 flex flex-col gap-2 h-148  max-w-screen-2xl mx-auto">
     <div class="flex  items-center  justify-between gap-6 ">
-      <div>
+      <div class="gsap-header">
         <h1 class="text-4xl lg:text-5xl font-bold tracking-tight">Tableau de Bord</h1>
         <p class="text-base-content/60 mt-2 flex items-center gap-3">
           <span>Resto FOOD</span>
@@ -92,7 +92,7 @@ if (!empty($dateDebut) || !empty($dateFin)) {
           <?= date('l d F Y') ?>
         </p>
       </div>
-      <div class="card bg-base-100 border w-xl border-base-200 shadow-xl ">
+      <div class="card bg-base-100 border w-xl border-base-200 shadow-xl gsap-ca">
         <div class="card-body">
           <div class="flex justify-between items-center">
             <div>
@@ -109,7 +109,7 @@ if (!empty($dateDebut) || !empty($dateFin)) {
       </div>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-      <div class="card bg-base-100 border border-base-200  shadow-xl">
+      <div class="card bg-base-100 border border-base-200  shadow-xl gsap-card">
         <div class="card-body">
           <div class="flex justify-between items-start">
             <div>
@@ -124,7 +124,7 @@ if (!empty($dateDebut) || !empty($dateFin)) {
           </div>
         </div>
       </div>
-      <div class="card bg-base-100 border border-base-200   shadow-xl">
+      <div class="card bg-base-100 border border-base-200   shadow-xl gsap-card">
         <div class="card-body">
           <div class="flex justify-between items-start">
             <div>
@@ -138,7 +138,7 @@ if (!empty($dateDebut) || !empty($dateFin)) {
           </div>
         </div>
       </div>
-      <div class="card bg-base-100 border border-base-200  shadow-xl">
+      <div class="card bg-base-100 border border-base-200  shadow-xl gsap-card">
         <div class="card-body">
           <div class="flex justify-between items-start">
             <div>
@@ -152,7 +152,7 @@ if (!empty($dateDebut) || !empty($dateFin)) {
           </div>
         </div>
       </div>
-      <div class="card bg-base-100 border border-base-200   shadow-xl">
+      <div class="card bg-base-100 border border-base-200   shadow-xl gsap-card">
         <div class="card-body">
           <div class="flex justify-between items-start">
             <div>
@@ -170,7 +170,7 @@ if (!empty($dateDebut) || !empty($dateFin)) {
       </div>
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-7 gap-6">
-      <div class="lg:col-span-5 card bg-base-100 shadow-xl border border-base-200">
+      <div class="lg:col-span-5 card bg-base-100 shadow-xl border border-base-200 gsap-chart">
         <div class="card-body">
           <h2 class="card-title mb-6">Évolution des Recettes - 6 Mois</h2>
           <div class="h-100">
@@ -178,7 +178,7 @@ if (!empty($dateDebut) || !empty($dateFin)) {
           </div>
         </div>
       </div>
-      <div class="lg:col-span-2 card bg-base-100 shadow-xl border border-base-200">
+      <div class="lg:col-span-2 card bg-base-100 shadow-xl border border-base-200 gsap-top">
         <div class="card-body h-full flex flex-col">
           <h2 class="card-title text-info font-bold mb-4"><i class="fas fa-gem"></i> Top 10 des plats les plus vendus </h2>
           <div class=" overflow-auto h-100 space-y-3">
@@ -187,7 +187,7 @@ if (!empty($dateDebut) || !empty($dateFin)) {
             $rang = 1;
             while ($row = mysqli_fetch_assoc($result)):
             ?>
-              <div class="flex items-center gap-3 p-3 rounded-lg bg-base-200/50 hover:bg-base-200 transition">
+              <div class="flex items-center gap-3 p-3 rounded-lg bg-base-200/50 hover:bg-base-200 transition gsap-plat">
         
                 <div class="flex-1 min-w-0">
 
@@ -207,9 +207,10 @@ if (!empty($dateDebut) || !empty($dateFin)) {
       </div>
     </div>
   </div>
-</div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script>
   new Chart(document.getElementById('recetteChart'), {
     type: 'bar',
@@ -245,4 +246,45 @@ if (!empty($dateDebut) || !empty($dateFin)) {
       }
     }
   });
+
+  // ========== GSAP ENTER ANIMATIONS ==========
+  gsap.set([".gsap-header", ".gsap-ca", ".gsap-card", ".gsap-chart", ".gsap-top", ".gsap-plat"], {
+    opacity: 0,
+    y: 40
+  });
+
+  const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+  tl.to(".gsap-header", {
+    opacity: 1,
+    y: 0,
+    duration: 0.7
+  })
+  .to(".gsap-ca", {
+    opacity: 1,
+    y: 0,
+    duration: 0.6
+  }, "-=0.4")
+  .to(".gsap-card", {
+    opacity: 1,
+    y: 0,
+    duration: 0.55,
+    stagger: 0.12
+  }, "-=0.3")
+  .to(".gsap-chart", {
+    opacity: 1,
+    y: 0,
+    duration: 0.7
+  }, "-=0.25")
+  .to(".gsap-top", {
+    opacity: 1,
+    y: 0,
+    duration: 0.65
+  }, "-=0.45")
+  .to(".gsap-plat", {
+    opacity: 1,
+    y: 0,
+    duration: 0.45,
+    stagger: 0.08
+  }, "-=0.3");
 </script>
